@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Lash Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEEFE7;
+    --panel: #FFFFFF;
+    --ink: #2A2E29;
+    --ink-soft: #6B7268;
+    --line: #DDDFD3;
+    --teal: #45645B;
+    --teal-deep: #2F4A43;
+    --amber: #C68A3F;
+    --rose: #B25C50;
+    --chip-bg: #F4F4EC;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    padding-bottom:48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  header{
+    padding:28px 20px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    top:-40px; right:-40px;
+    width:160px; height:160px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--teal) 0%, transparent 70%);
+    opacity:0.12;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:30px;
+    margin:0;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin-top:8px;
+    max-width:34ch;
+  }
+  main{
+    padding:0 16px;
+    max-width:520px;
+    margin:0 auto;
+  }
+  .card{
+    background:var(--panel);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:14px;
+    border:1px solid var(--line);
+  }
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:16px;
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2 .n{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--teal);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    font-family:'Inter',sans-serif;
+  }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--chip-bg);
+    color:var(--ink);
+    padding:9px 14px;
+    border-radius:100px;
+    font-size:13.5px;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    transition:all .12s ease;
+  }
+  .chip.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fff;
+  }
+  .chip.active.pull{ background:var(--rose); border-color:var(--rose); }
+  .chip.active.resist{ background:var(--teal); border-color:var(--teal); }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  input[type=range]{
+    width:100%;
+    accent-color:var(--teal);
+    margin-top:4px;
+  }
+  .scale-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    resize:vertical;
+    min-height:60px;
+    background:#FBFBF8;
+    color:var(--ink);
+  }
+  textarea:focus, .chip:focus-visible, button:focus-visible{
+    outline:2px solid var(--teal-deep);
+    outline-offset:2px;
+  }
+  .save-btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:var(--teal-deep);
+    color:#fff;
+    font-family:'Inter',sans-serif;
+    font-size:15.5px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .save-btn:active{ opacity:0.85; }
+  .save-btn.disabled{ opacity:0.4; pointer-events:none; }
+
+  .toast{
+    position:fixed;
+    bottom:24px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--teal-deep);
+    color:#fff;
+    padding:12px 20px;
+    border-radius:100px;
+    font-size:14px;
+    font-weight:500;
+    opacity:0;
+    transition:all .25s ease;
+    pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin:6px 16px 16px;
+    max-width:520px;
+    margin-left:auto; margin-right:auto;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px;
+    border-radius:10px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border:1px solid transparent;
+  }
+  .tab.active{
+    background:var(--panel);
+    color:var(--teal-deep);
+    border-color:var(--line);
+  }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+  }
+  .stat .num{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    font-weight:500;
+    color:var(--teal-deep);
+  }
+  .stat .label{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:9px;
+    font-size:13px;
+  }
+  .bar-label{ width:88px; flex-shrink:0; color:var(--ink-soft); }
+  .bar-track{
+    flex:1;
+    height:8px;
+    background:var(--chip-bg);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--teal);
+    border-radius:6px;
+  }
+  .bar-count{ width:20px; text-align:right; font-weight:600; color:var(--ink);}
+
+  .entry{
+    border-bottom:1px solid var(--line);
+    padding:12px 0;
+    font-size:13.5px;
+  }
+  .entry:last-child{ border-bottom:none; }
+  .entry-top{
+    display:flex;
+    justify-content:space-between;
+    color:var(--ink-soft);
+    font-size:12px;
+    margin-bottom:4px;
+  }
+  .entry-badge{
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:100px;
+    font-size:11px;
+  }
+  .entry-badge.pull{ background:#F3E2DF; color:var(--rose); }
+  .entry-badge.resist{ background:#E1EAE6; color:var(--teal-deep); }
+  .entry-tags{ color:var(--ink-soft); }
+  .entry-notes{ margin-top:4px; color:var(--ink); }
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:30px 10px;
+    font-size:14px;
+  }
+  .clear-link{
+    display:block;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:18px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Personal tracker</p>
+  <h1>Lash Log</h1>
+  <p class="sub">Log the moment, not just the pull. Patterns show up after a couple weeks of entries.</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="log">Log</div>
+  <div class="tab" data-tab="insights">Insights</div>
+  <div class="tab" data-tab="history">History</div>
+</div>
+
+<main>
+
+  <!-- LOG VIEW -->
+  <div class="view active" id="view-log">
+
+    <div class="card">
+      <h2><span class="n">1</span>What happened</h2>
+      <div class="chips">
+        <button class="chip pull" data-group="action" data-value="Pulled">Pulled</button>
+        <button class="chip resist" data-group="action" data-value="Urge, resisted">Urge, resisted</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span>Which side</h2>
+      <div class="chips">
+        <button class="chip" data-group="side" data-value="Left upper">Left upper</button>
+        <button class="chip" data-group="side" data-value="Right upper">Right upper</button>
+        <button class="chip" data-group="side" data-value="Both">Both</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">3</span>Physical sensation right before</h2>
+      <div class="chips" id="sensation-chips">
+        <button class="chip" data-group="sensation" data-value="Itchy">Itchy</button>
+        <button class="chip" data-group="sensation" data-value="Dry">Dry</button>
+        <button class="chip" data-group="sensation" data-value="Irritated / gritty">Irritated / gritty</button>
+        <button class="chip" data-group="sensation" data-value="Tension / urge only">Tension / urge only</button>
+        <button class="chip" data-group="sensation" data-value="Nothing noticeable">Nothing noticeable</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">4</span>What were you doing</h2>
+      <div class="chips" id="context-chips">
+        <button class="chip" data-group="context" data-value="Screen / phone">Screen / phone</button>
+        <button class="chip" data-group="context" data-value="Reading">Reading</button>
+        <button class="chip" data-group="context" data-value="Focused task">Focused task</button>
+        <button class="chip" data-group="context" data-value="Bored, idle">Bored, idle</button>
+        <button class="chip" data-group="context" data-value="Stressed / anxious">Stressed / anxious</button>
+        <button class="chip" data-group="context" data-value="Watching TV">Watching TV</button>
+        <button class="chip" data-group="context" data-value="In bed, winding down">In bed, winding down</button>
+        <button class="chip" data-group="context" data-value="Driving / commuting">Driving / commuting</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">5</span>Urge intensity</h2>
+      <input type="range" min="1" max="5" value="3" id="intensity">
+      <div class="scale-labels"><span>Mild pull</span><span>Overwhelming</span></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">6</span>Notes <span style="font-weight:400;color:var(--ink-soft);font-size:12px;">(optional)</span></h2>
+      <textarea id="notes" placeholder="Anything else worth remembering about this moment..."></textarea>
+    </div>
+
+    <button class="save-btn disabled" id="saveBtn">Save entry</button>
+  </div>
+
+  <!-- INSIGHTS VIEW -->
+  <div class="view" id="view-insights">
+    <div id="insights-content"></div>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div class="view" id="view-history">
+    <div class="card" id="history-content"></div>
+    <div class="clear-link" id="clearAll">Clear all entries</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast">Entry saved</div>
+
+<script>
+const state = { action:null, side:null, sensation:null, context:null };
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const group = chip.dataset.group;
+    const value = chip.dataset.value;
+    const groupChips = document.querySelectorAll(`.chip[data-group="${group}"]`);
+    if(state[group] === value){
+      state[group] = null;
+      chip.classList.remove('active');
+    } else {
+      groupChips.forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state[group] = value;
+    }
+    updateSaveButton();
+  });
+});
+
+function updateSaveButton(){
+  const btn = document.getElementById('saveBtn');
+  const ready = state.action && state.side;
+  btn.classList.toggle('disabled', !ready);
+}
+
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  if(!state.action || !state.side) return;
+  const entry = {
+    id: 'e_' + Date.now(),
+    timestamp: new Date().toISOString(),
+    action: state.action,
+    side: state.side,
+    sensation: state.sensation,
+    context: state.context,
+    intensity: parseInt(document.getElementById('intensity').value),
+    notes: document.getElementById('notes').value.trim()
+  };
+  await saveEntry(entry);
+  resetForm();
+  showToast('Entry saved');
+});
+
+function resetForm(){
+  Object.keys(state).forEach(k=>state[k]=null);
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  document.getElementById('intensity').value = 3;
+  document.getElementById('notes').value = '';
+  updateSaveButton();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+async function getEntries(){
+  try{
+    const res = await window.storage.get('entries', false);
+    return res ? JSON.parse(res.value) : [];
+  }catch(e){
+    return [];
+  }
+}
+
+async function saveEntries(list){
+  try{
+    await window.storage.set('entries', JSON.stringify(list), false);
+  }catch(e){
+    console.error('Storage error', e);
+    showToast('Save failed, try again');
+  }
+}
+
+async function saveEntry(entry){
+  const list = await getEntries();
+  list.push(entry);
+  await saveEntries(list);
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', async ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab === 'insights') await renderInsights();
+    if(tab.dataset.tab === 'history') await renderHistory();
+  });
+});
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' · ' +
+         d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+
+function tally(list, key){
+  const counts = {};
+  list.forEach(e=>{
+    const v = e[key];
+    if(!v) return;
+    counts[v] = (counts[v]||0)+1;
+  });
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+}
+
+async function renderInsights(){
+  const list = await getEntries();
+  const el = document.getElementById('insights-content');
+  if(list.length === 0){
+    el.innerHTML = '<div class="empty">No entries yet. Log a few and patterns will show up here.</div>';
+    return;
+  }
+  const pulls = list.filter(e=>e.action==='Pulled').length;
+  const resists = list.filter(e=>e.action==='Urge, resisted').length;
+  const total = list.length;
+  const resistRate = total ? Math.round((resists/total)*100) : 0;
+  const avgIntensity = (list.reduce((s,e)=>s+(e.intensity||0),0)/total).toFixed(1);
+
+  const contextTally = tally(list, 'context');
+  const sensationTally = tally(list, 'sensation');
+  const maxContext = Math.max(...contextTally.map(c=>c[1]), 1);
+  const maxSensation = Math.max(...sensationTally.map(c=>c[1]), 1);
+
+  let html = `
+    <div class="stat-grid">
+      <div class="stat"><div class="num">${total}</div><div class="label">Total entries</div></div>
+      <div class="stat"><div class="num">${resistRate}%</div><div class="label">Urges resisted</div></div>
+      <div class="stat"><div class="num">${pulls}</div><div class="label">Times pulled</div></div>
+      <div class="stat"><div class="num">${avgIntensity}</div><div class="label">Avg urge intensity</div></div>
+    </div>
+    <div class="card">
+      <h2>Top triggers</h2>
+      ${contextTally.length ? contextTally.map(([k,v])=>`
+        <div class="bar-row">
+          <div class="bar-label">${k}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(v/maxContext)*100}%"></div></div>
+          <div class="bar-count">${v}</div>
+        </div>`).join('') : '<div class="empty">No trigger data yet</div>'}
+    </div>
+    <div class="card">
+      <h2>Sensation right before</h2>
+      ${sensationTally.length ? sensationTally.map(([k,v])=>`
+        <div class="bar-row">
+          <div class="bar-label">${k}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(v/maxSensation)*100}%; background:var(--amber);"></div></div>
+          <div class="bar-count">${v}</div>
+        </div>`).join('') : '<div class="empty">No sensation data yet</div>'}
+    </div>
+  `;
+  el.innerHTML = html;
+}
+
+async function renderHistory(){
+  const list = await getEntries();
+  const el = document.getElementById('history-content');
+  if(list.length === 0){
+    el.innerHTML = '<div class="empty">Nothing logged yet.</div>';
+    return;
+  }
+  const sorted = [...list].sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+  el.innerHTML = sorted.map(e=>`
+    <div class="entry">
+      <div class="entry-top">
+        <span>${fmtDate(e.timestamp)}</span>
+        <span class="entry-badge ${e.action==='Pulled'?'pull':'resist'}">${e.action}</span>
+      </div>
+      <div class="entry-tags">${[e.side, e.sensation, e.context].filter(Boolean).join(' · ')}${e.intensity ? ' · intensity ' + e.intensity : ''}</div>
+      ${e.notes ? `<div class="entry-notes">${e.notes.replace(/</g,'&lt;')}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+document.getElementById('clearAll').addEventListener('click', async ()=>{
+  if(confirm('Delete all logged entries? This cannot be undone.')){
+    await saveEntries([]);
+    await renderHistory();
+    showToast('All entries cleared');
+  }
+});
+</script>
+
+</body>
+</html>
