@@ -15,8 +15,10 @@
     --line: #DDDFD3;
     --teal: #45645B;
     --teal-deep: #2F4A43;
+    --teal-pale: #E1EAE6;
     --amber: #C68A3F;
     --rose: #B25C50;
+    --rose-pale: #F3E2DF;
     --chip-bg: #F4F4EC;
     --radius: 14px;
   }
@@ -31,7 +33,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   header{
-    padding:28px 20px 18px;
+    padding:26px 20px 16px;
     position:relative;
     overflow:hidden;
   }
@@ -55,22 +57,93 @@
   h1{
     font-family:'Fraunces',serif;
     font-weight:500;
-    font-size:30px;
+    font-size:29px;
     margin:0;
     line-height:1.15;
     letter-spacing:-0.01em;
-  }
-  .sub{
-    color:var(--ink-soft);
-    font-size:14px;
-    margin-top:8px;
-    max-width:34ch;
   }
   main{
     padding:0 16px;
     max-width:520px;
     margin:0 auto;
   }
+
+  /* Streak signature element */
+  .streak-card{
+    background:linear-gradient(135deg, var(--teal-deep), var(--teal));
+    border-radius:20px;
+    padding:20px;
+    margin:14px 0 16px;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .streak-card::before{
+    content:"";
+    position:absolute;
+    right:-30px; bottom:-30px;
+    width:120px; height:120px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+  }
+  .streak-ring{
+    flex-shrink:0;
+    width:64px; height:64px;
+    position:relative;
+  }
+  .streak-ring svg{ transform:rotate(-90deg); }
+  .streak-ring .track{ stroke:rgba(255,255,255,0.22); fill:none; stroke-width:5; }
+  .streak-ring .fill{ stroke:#fff; fill:none; stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease; }
+  .streak-ring .num{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif;
+    font-size:20px;
+    font-weight:600;
+  }
+  .streak-text .label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    opacity:0.85;
+    margin-bottom:3px;
+  }
+  .streak-text .msg{
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    font-weight:500;
+    line-height:1.3;
+  }
+
+  .banner{
+    background:var(--amber);
+    color:#fff;
+    border-radius:14px;
+    padding:13px 16px;
+    margin-bottom:14px;
+    font-size:13.5px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    animation:slideIn 0.35s ease;
+  }
+  .banner button{
+    background:rgba(255,255,255,0.25);
+    border:none;
+    color:#fff;
+    padding:6px 12px;
+    border-radius:100px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  @keyframes slideIn{ from{ opacity:0; transform:translateY(-8px);} to{ opacity:1; transform:translateY(0);} }
+
   .card{
     background:var(--panel);
     border-radius:var(--radius);
@@ -116,30 +189,13 @@
     user-select:none;
     transition:all .12s ease;
   }
-  .chip.active{
-    background:var(--teal);
-    border-color:var(--teal);
-    color:#fff;
-  }
+  .chip.active{ background:var(--teal); border-color:var(--teal); color:#fff; }
   .chip.active.pull{ background:var(--rose); border-color:var(--rose); }
   .chip.active.resist{ background:var(--teal); border-color:var(--teal); }
-  .row2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-  }
-  input[type=range]{
-    width:100%;
-    accent-color:var(--teal);
-    margin-top:4px;
-  }
-  .scale-labels{
-    display:flex;
-    justify-content:space-between;
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin-top:2px;
-  }
+
+  input[type=range]{ width:100%; accent-color:var(--teal); margin-top:4px; }
+  .scale-labels{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+
   textarea{
     width:100%;
     border:1px solid var(--line);
@@ -168,8 +224,9 @@
     font-weight:600;
     cursor:pointer;
     margin-top:4px;
+    transition:transform .12s ease, opacity .12s ease;
   }
-  .save-btn:active{ opacity:0.85; }
+  .save-btn:active{ transform:scale(0.98); }
   .save-btn.disabled{ opacity:0.4; pointer-events:none; }
 
   .toast{
@@ -185,6 +242,7 @@
     opacity:0;
     transition:all .25s ease;
     pointer-events:none;
+    z-index:20;
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
@@ -205,89 +263,129 @@
     color:var(--ink-soft);
     cursor:pointer;
     border:1px solid transparent;
+    transition:all .15s ease;
   }
-  .tab.active{
-    background:var(--panel);
-    color:var(--teal-deep);
-    border-color:var(--line);
-  }
-  .view{ display:none; }
+  .tab.active{ background:var(--panel); color:var(--teal-deep); border-color:var(--line); }
+  .view{ display:none; animation:fadeIn 0.25s ease; }
   .view.active{ display:block; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:translateY(0);} }
 
-  .stat-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-bottom:14px;
-  }
-  .stat{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:14px;
-  }
-  .stat .num{
-    font-family:'Fraunces',serif;
-    font-size:26px;
-    font-weight:500;
-    color:var(--teal-deep);
-  }
-  .stat .label{
-    font-size:12px;
-    color:var(--ink-soft);
-    margin-top:2px;
-  }
-  .bar-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:9px;
-    font-size:13px;
-  }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .stat{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px; }
+  .stat .num{ font-family:'Fraunces',serif; font-size:26px; font-weight:500; color:var(--teal-deep); }
+  .stat .label{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+
+  .bar-row{ display:flex; align-items:center; gap:10px; margin-bottom:9px; font-size:13px; }
   .bar-label{ width:88px; flex-shrink:0; color:var(--ink-soft); }
-  .bar-track{
-    flex:1;
-    height:8px;
-    background:var(--chip-bg);
-    border-radius:6px;
-    overflow:hidden;
-  }
-  .bar-fill{
-    height:100%;
-    background:var(--teal);
-    border-radius:6px;
-  }
+  .bar-track{ flex:1; height:8px; background:var(--chip-bg); border-radius:6px; overflow:hidden; }
+  .bar-fill{ height:100%; background:var(--teal); border-radius:6px; transition:width .5s ease; }
   .bar-count{ width:20px; text-align:right; font-weight:600; color:var(--ink);}
 
-  .entry{
-    border-bottom:1px solid var(--line);
-    padding:12px 0;
-    font-size:13.5px;
-  }
-  .entry:last-child{ border-bottom:none; }
-  .entry-top{
+  /* 7-day trend chart */
+  .trend-chart{
     display:flex;
+    align-items:flex-end;
     justify-content:space-between;
-    color:var(--ink-soft);
+    height:120px;
+    gap:8px;
+    margin:8px 0 6px;
+    padding:0 2px;
+  }
+  .trend-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    gap:3px;
+  }
+  .trend-bars{
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    height:90px;
+  }
+  .trend-bar{
+    width:9px;
+    border-radius:3px 3px 0 0;
+    transition:height .5s ease;
+  }
+  .trend-bar.pull{ background:var(--rose); }
+  .trend-bar.resist{ background:var(--teal); }
+  .trend-day{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+  .trend-legend{
+    display:flex;
+    gap:16px;
+    justify-content:center;
     font-size:12px;
-    margin-bottom:4px;
+    color:var(--ink-soft);
+    margin-top:8px;
   }
-  .entry-badge{
-    font-weight:700;
-    padding:2px 8px;
+  .trend-legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot.pull{ background:var(--rose); }
+  .dot.resist{ background:var(--teal); }
+
+  /* Reminder card */
+  .reminder-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .reminder-row p{ font-size:13px; color:var(--ink-soft); margin:4px 0 0; }
+  select{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    background:#FBFBF8;
+    color:var(--ink);
+  }
+  .switch{
+    position:relative;
+    width:44px; height:26px;
+    flex-shrink:0;
+  }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .track{
+    position:absolute; inset:0;
+    background:var(--line);
     border-radius:100px;
-    font-size:11px;
+    transition:background .2s ease;
+    cursor:pointer;
   }
-  .entry-badge.pull{ background:#F3E2DF; color:var(--rose); }
-  .entry-badge.resist{ background:#E1EAE6; color:var(--teal-deep); }
+  .switch .track::after{
+    content:"";
+    position:absolute;
+    width:20px; height:20px;
+    left:3px; top:3px;
+    background:#fff;
+    border-radius:50%;
+    transition:transform .2s ease;
+  }
+  .switch input:checked + .track{ background:var(--teal); }
+  .switch input:checked + .track::after{ transform:translateX(18px); }
+
+  .entry{ border-bottom:1px solid var(--line); padding:12px 0; font-size:13.5px; }
+  .entry:last-child{ border-bottom:none; }
+  .entry-top{ display:flex; justify-content:space-between; color:var(--ink-soft); font-size:12px; margin-bottom:4px; }
+  .entry-badge{ font-weight:700; padding:2px 8px; border-radius:100px; font-size:11px; }
+  .entry-badge.pull{ background:var(--rose-pale); color:var(--rose); }
+  .entry-badge.resist{ background:var(--teal-pale); color:var(--teal-deep); }
   .entry-tags{ color:var(--ink-soft); }
   .entry-notes{ margin-top:4px; color:var(--ink); }
-  .empty{
-    text-align:center;
-    color:var(--ink-soft);
-    padding:30px 10px;
-    font-size:14px;
+  .day-header{
+    font-family:'Fraunces',serif;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--teal-deep);
+    margin:18px 0 4px;
   }
+  .day-header:first-child{ margin-top:0; }
+  .empty{ text-align:center; color:var(--ink-soft); padding:30px 10px; font-size:14px; }
   .clear-link{
     display:block;
     text-align:center;
@@ -304,8 +402,9 @@
 <header>
   <p class="eyebrow">Personal tracker</p>
   <h1>Lash Log</h1>
-  <p class="sub">Log the moment, not just the pull. Patterns show up after a couple weeks of entries.</p>
 </header>
+
+<div id="reminder-banner"></div>
 
 <div class="tabs">
   <div class="tab active" data-tab="log">Log</div>
@@ -317,6 +416,20 @@
 
   <!-- LOG VIEW -->
   <div class="view active" id="view-log">
+
+    <div class="streak-card" id="streakCard">
+      <div class="streak-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="track" cx="32" cy="32" r="27"></circle>
+          <circle class="fill" id="streakFill" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="169.6"></circle>
+        </svg>
+        <div class="num" id="streakNum">0</div>
+      </div>
+      <div class="streak-text">
+        <div class="label">Days since last pull</div>
+        <div class="msg" id="streakMsg">Log your first entry to start tracking.</div>
+      </div>
+    </div>
 
     <div class="card">
       <h2><span class="n">1</span>What happened</h2>
@@ -337,7 +450,7 @@
 
     <div class="card">
       <h2><span class="n">3</span>Physical sensation right before</h2>
-      <div class="chips" id="sensation-chips">
+      <div class="chips">
         <button class="chip" data-group="sensation" data-value="Itchy">Itchy</button>
         <button class="chip" data-group="sensation" data-value="Dry">Dry</button>
         <button class="chip" data-group="sensation" data-value="Irritated / gritty">Irritated / gritty</button>
@@ -348,7 +461,7 @@
 
     <div class="card">
       <h2><span class="n">4</span>What were you doing</h2>
-      <div class="chips" id="context-chips">
+      <div class="chips">
         <button class="chip" data-group="context" data-value="Screen / phone">Screen / phone</button>
         <button class="chip" data-group="context" data-value="Reading">Reading</button>
         <button class="chip" data-group="context" data-value="Focused task">Focused task</button>
@@ -430,6 +543,8 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   await saveEntry(entry);
   resetForm();
   showToast('Entry saved');
+  await renderStreak();
+  document.getElementById('reminder-banner').innerHTML = '';
 });
 
 function resetForm(){
@@ -471,7 +586,46 @@ async function saveEntry(entry){
   await saveEntries(list);
 }
 
-// Tabs
+// ---------- Streak ----------
+function dayKey(date){
+  const d = new Date(date);
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+async function renderStreak(){
+  const list = await getEntries();
+  const ring = document.getElementById('streakFill');
+  const num = document.getElementById('streakNum');
+  const msg = document.getElementById('streakMsg');
+  const circumference = 169.6;
+
+  if(list.length === 0){
+    num.textContent = '0';
+    msg.textContent = 'Log your first entry to start tracking.';
+    ring.style.strokeDashoffset = circumference;
+    return;
+  }
+
+  const pulls = list.filter(e=>e.action==='Pulled').sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  let days;
+  if(pulls.length === 0){
+    const first = [...list].sort((a,b)=> new Date(a.timestamp)-new Date(b.timestamp))[0];
+    days = Math.floor((new Date() - new Date(first.timestamp)) / 86400000);
+  } else {
+    days = Math.floor((new Date() - new Date(pulls[0].timestamp)) / 86400000);
+  }
+
+  num.textContent = days;
+  const pct = Math.min(days / 14, 1); // ring fills over a 2-week goal
+  ring.style.strokeDashoffset = circumference - (circumference * pct);
+
+  if(days === 0) msg.textContent = 'Today counts. Every entry helps spot the pattern.';
+  else if(days < 3) msg.textContent = 'Early days. Keep logging, patterns take a bit to show.';
+  else if(days < 7) msg.textContent = 'Building momentum.';
+  else msg.textContent = 'Strong stretch. Keep it up.';
+}
+
+// ---------- Tabs ----------
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click', async ()=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -499,6 +653,44 @@ function tally(list, key){
   return Object.entries(counts).sort((a,b)=>b[1]-a[1]);
 }
 
+function buildTrendChart(list){
+  const days = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d);
+  }
+  const dayData = days.map(d=>{
+    const key = dayKey(d);
+    const dayEntries = list.filter(e=> dayKey(e.timestamp) === key);
+    return {
+      label: d.toLocaleDateString(undefined,{weekday:'narrow'}),
+      pulls: dayEntries.filter(e=>e.action==='Pulled').length,
+      resists: dayEntries.filter(e=>e.action==='Urge, resisted').length
+    };
+  });
+  const max = Math.max(...dayData.map(d=>Math.max(d.pulls,d.resists)), 1);
+  const scale = 82 / max;
+
+  return `
+    <div class="trend-chart">
+      ${dayData.map(d=>`
+        <div class="trend-col">
+          <div class="trend-bars">
+            <div class="trend-bar pull" style="height:${d.pulls*scale}px" title="${d.pulls} pulled"></div>
+            <div class="trend-bar resist" style="height:${d.resists*scale}px" title="${d.resists} resisted"></div>
+          </div>
+          <div class="trend-day">${d.label}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="trend-legend">
+      <span><span class="dot pull"></span>Pulled</span>
+      <span><span class="dot resist"></span>Resisted</span>
+    </div>
+  `;
+}
+
 async function renderInsights(){
   const list = await getEntries();
   const el = document.getElementById('insights-content');
@@ -517,7 +709,14 @@ async function renderInsights(){
   const maxContext = Math.max(...contextTally.map(c=>c[1]), 1);
   const maxSensation = Math.max(...sensationTally.map(c=>c[1]), 1);
 
+  const reminderTime = await getReminderTime();
+  const reminderOn = reminderTime !== null;
+
   let html = `
+    <div class="card">
+      <h2>Last 7 days</h2>
+      ${buildTrendChart(list)}
+    </div>
     <div class="stat-grid">
       <div class="stat"><div class="num">${total}</div><div class="label">Total entries</div></div>
       <div class="stat"><div class="num">${resistRate}%</div><div class="label">Urges resisted</div></div>
@@ -542,8 +741,88 @@ async function renderInsights(){
           <div class="bar-count">${v}</div>
         </div>`).join('') : '<div class="empty">No sensation data yet</div>'}
     </div>
+    <div class="card">
+      <h2>Daily reminder</h2>
+      <div class="reminder-row">
+        <div>
+          <div style="font-weight:600;font-size:14px;">Nudge me if I haven't logged</div>
+          <p>Shows a banner when you open the app past this time, if nothing's logged that day.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="reminderToggle" ${reminderOn ? 'checked' : ''}>
+          <span class="track"></span>
+        </label>
+      </div>
+      <div id="reminderTimeRow" style="margin-top:12px; ${reminderOn ? '' : 'display:none;'}">
+        <select id="reminderTime">
+          ${['08:00','12:00','15:00','18:00','20:00','21:30'].map(t=>`<option value="${t}" ${reminderTime===t?'selected':''}>${to12h(t)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
   `;
   el.innerHTML = html;
+
+  document.getElementById('reminderToggle').addEventListener('change', async (e)=>{
+    const row = document.getElementById('reminderTimeRow');
+    if(e.target.checked){
+      row.style.display = 'block';
+      await setReminderTime(document.getElementById('reminderTime').value);
+    } else {
+      row.style.display = 'none';
+      await setReminderTime(null);
+    }
+  });
+  const timeSelect = document.getElementById('reminderTime');
+  if(timeSelect){
+    timeSelect.addEventListener('change', async (e)=>{
+      await setReminderTime(e.target.value);
+    });
+  }
+}
+
+function to12h(t){
+  const [h,m] = t.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${m.toString().padStart(2,'0')} ${period}`;
+}
+
+async function getReminderTime(){
+  try{
+    const res = await window.storage.get('reminder-time', false);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){ return null; }
+}
+async function setReminderTime(val){
+  try{
+    await window.storage.set('reminder-time', JSON.stringify(val), false);
+  }catch(e){ console.error(e); }
+}
+
+async function checkReminder(){
+  const time = await getReminderTime();
+  const banner = document.getElementById('reminder-banner');
+  if(!time){ banner.innerHTML=''; return; }
+  const [h,m] = time.split(':').map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  if(now < target){ banner.innerHTML=''; return; }
+
+  const list = await getEntries();
+  const todayKey = dayKey(now);
+  const loggedToday = list.some(e => dayKey(e.timestamp) === todayKey);
+  if(loggedToday){ banner.innerHTML=''; return; }
+
+  banner.innerHTML = `
+    <div class="banner">
+      <span>You haven't logged anything today yet.</span>
+      <button id="dismissBanner">Dismiss</button>
+    </div>
+  `;
+  document.getElementById('dismissBanner').addEventListener('click', ()=>{
+    banner.innerHTML = '';
+  });
 }
 
 async function renderHistory(){
@@ -554,25 +833,41 @@ async function renderHistory(){
     return;
   }
   const sorted = [...list].sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
-  el.innerHTML = sorted.map(e=>`
-    <div class="entry">
-      <div class="entry-top">
-        <span>${fmtDate(e.timestamp)}</span>
-        <span class="entry-badge ${e.action==='Pulled'?'pull':'resist'}">${e.action}</span>
+  let lastDay = null;
+  let html = '';
+  sorted.forEach(e=>{
+    const d = new Date(e.timestamp);
+    const dayLabel = d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+    if(dayLabel !== lastDay){
+      html += `<div class="day-header">${dayLabel}</div>`;
+      lastDay = dayLabel;
+    }
+    html += `
+      <div class="entry">
+        <div class="entry-top">
+          <span>${d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}</span>
+          <span class="entry-badge ${e.action==='Pulled'?'pull':'resist'}">${e.action}</span>
+        </div>
+        <div class="entry-tags">${[e.side, e.sensation, e.context].filter(Boolean).join(' · ')}${e.intensity ? ' · intensity ' + e.intensity : ''}</div>
+        ${e.notes ? `<div class="entry-notes">${e.notes.replace(/</g,'&lt;')}</div>` : ''}
       </div>
-      <div class="entry-tags">${[e.side, e.sensation, e.context].filter(Boolean).join(' · ')}${e.intensity ? ' · intensity ' + e.intensity : ''}</div>
-      ${e.notes ? `<div class="entry-notes">${e.notes.replace(/</g,'&lt;')}</div>` : ''}
-    </div>
-  `).join('');
+    `;
+  });
+  el.innerHTML = html;
 }
 
 document.getElementById('clearAll').addEventListener('click', async ()=>{
   if(confirm('Delete all logged entries? This cannot be undone.')){
     await saveEntries([]);
     await renderHistory();
+    await renderStreak();
     showToast('All entries cleared');
   }
 });
+
+// Init
+renderStreak();
+checkReminder();
 </script>
 
 </body>
