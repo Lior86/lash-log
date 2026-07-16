@@ -572,8 +572,8 @@ function showToast(msg){
 
 async function getEntries(){
   try{
-    const res = await window.storage.get('entries', false);
-    return res ? JSON.parse(res.value) : [];
+    const raw = localStorage.getItem('lash-log-entries');
+    return raw ? JSON.parse(raw) : [];
   }catch(e){
     return [];
   }
@@ -581,7 +581,7 @@ async function getEntries(){
 
 async function saveEntries(list){
   try{
-    await window.storage.set('entries', JSON.stringify(list), false);
+    localStorage.setItem('lash-log-entries', JSON.stringify(list));
   }catch(e){
     console.error('Storage error', e);
     showToast('Save failed, try again');
@@ -797,15 +797,16 @@ function to12h(t){
 
 async function getReminderTime(){
   try{
-    const res = await window.storage.get('reminder-time', false);
-    return res ? JSON.parse(res.value) : null;
+    const raw = localStorage.getItem('lash-log-reminder-time');
+    return raw ? JSON.parse(raw) : null;
   }catch(e){ return null; }
 }
 async function setReminderTime(val){
   try{
-    await window.storage.set('reminder-time', JSON.stringify(val), false);
+    localStorage.setItem('lash-log-reminder-time', JSON.stringify(val));
   }catch(e){ console.error(e); }
 }
+
 
 async function checkReminder(){
   const time = await getReminderTime();
